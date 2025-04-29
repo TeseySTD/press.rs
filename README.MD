@@ -2,4 +2,4 @@
 
 # Overview
 
-*press.rs* is tiny utill for compressing files, written in Rust.
+**press.rs** is tiny utill for compressing files, written in Rust.
