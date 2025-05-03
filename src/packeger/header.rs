@@ -4,6 +4,7 @@ pub const TYPEFLAG_SIZE: usize = 1;
 
 pub const ENTRY_SIZE: usize = NAME_SIZE + SIZE + TYPEFLAG_SIZE;
 
+#[derive(PartialEq, Eq)]
 pub enum EntryType {
     File,
     Directory
@@ -39,6 +40,23 @@ impl Header {
             typeflag: [0; TYPEFLAG_SIZE],
         }
     }
+
+    pub fn get_name(&self) -> String {
+        let len = self.name.iter()
+            .position(|&b| b == 0)
+            .unwrap_or(NAME_SIZE);
+        String::from_utf8_lossy(&self.name[..len]).to_string()
+    }
+
+    pub fn get_size(&self) -> usize {
+        let tmp = String::from_utf8_lossy(&self.size);
+        let size_str = tmp
+            .trim_end_matches('\0') 
+            .trim(); 
+
+        usize::from_str_radix(size_str, 8).expect("Invalid octal in size field")
+    }
+    
 
     pub fn set_name(&mut self, name: String) {
         let bytes = name.as_bytes();
