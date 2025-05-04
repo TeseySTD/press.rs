@@ -1,64 +1,55 @@
 use std::{fs, path::Path};
 
-use super::header::{Header, ENTRY_SIZE, EntryType};
+use super::header::{ENTRY_SIZE, EntryType, Header};
 
-pub fn pack_directory(path: impl AsRef<Path>) -> Vec<u8> {
-    let mut stream = Vec::<u8>::new();
+pub fn pack_directory(root: &Path, path: &Path) -> Vec<u8> {
+    let mut stream = Vec::new();
 
-    let mut header = Header::new();
-    header.set_name(
-        path.as_ref()
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string(),
-    );
-    header.set_size(0);
-    header.set_typeflag(EntryType::Directory);
+    let rel = path.strip_prefix(root).expect("path must start with root");
+    let rel_str = rel.to_string_lossy().replace('\\', "/");
+
+    let header = Header::from_values(rel_str, 0, EntryType::Directory);
 
     stream.extend(header.as_bytes());
 
-    let dir_entries = fs::read_dir(path)
-        .expect("Cannot read directory")
-        .map(|entry| entry.expect("Cannot read directory entry"));
+    for entry in fs::read_dir(path).expect("Cannot read directory") {
+        let entry = entry.expect("Cannot read directory entry");
+        let entry_path = entry.path();
 
-    for dir_entry in dir_entries {
-        if dir_entry
-            .file_type()
-            .expect("Cannot get file type")
-            .is_dir()
-        {
-            stream.extend(pack_directory(dir_entry.path()));
+        if entry.file_type().unwrap().is_dir() {
+            stream.extend(pack_directory(root, &entry_path));
         } else {
-            stream.extend(pack_file(dir_entry.path()));
+            stream.extend(pack_file(root, &entry_path));
         }
     }
 
-    return stream;
+    stream
 }
 
-pub fn pack_file(path: impl AsRef<Path>) -> Vec<u8> {
-    let mut stream = Vec::<u8>::new();
+pub fn pack_file(root: &Path, path: &Path) -> Vec<u8> {
+    let mut stream = Vec::new();
+    let rel_str: String;
 
-    let mut header = Header::new();
-    header.set_name(
-        path.as_ref()
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string(),
+    if root == path {
+        rel_str = path.file_name().unwrap().to_str().unwrap().to_string();
+    } else {
+        let rel = path.strip_prefix(root).expect("path must start with root");
+        rel_str = rel.to_string_lossy().replace('\\', "/");
+    }
+
+    let header = Header::from_values(
+        rel_str,
+        path.metadata().unwrap().len() as usize,
+        EntryType::File,
     );
-    header.set_size(path.as_ref().metadata().unwrap().len() as usize);
-    header.set_typeflag(EntryType::File);
 
     stream.extend(header.as_bytes());
 
-    let file = fs::read(path).expect("Cannot read file");
-    stream.extend(file_as_entries(file));
+    let mut data = fs::read(path).expect("Cannot read file");
+    data = file_as_entries(data);
+    stream.extend(data);
 
-    return stream;
+    stream
 }
 
 pub fn file_as_entries(mut file: Vec<u8>) -> Vec<u8> {

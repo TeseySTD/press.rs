@@ -2,7 +2,7 @@ use std::{
     fs,
     path::Path,
 };
-use header::{Header, ENTRY_SIZE};
+use header:: ENTRY_SIZE;
 use pack::{pack_directory, pack_file};
 
 mod header;
@@ -12,9 +12,9 @@ mod unpack;
 pub fn pack(path: impl AsRef<Path>) -> Vec<u8> {
     let mut archive = Vec::<u8>::new();
     if path.as_ref().is_dir() {
-        archive.extend(pack_directory(path));
+        archive.extend(pack_directory(path.as_ref(), path.as_ref()));
     } else {
-        archive.extend(pack_file(path));
+        archive.extend(pack_file(path.as_ref(), path.as_ref()));
     }
 
     // Add 2 empty entries to mark the end of the archive
@@ -24,7 +24,7 @@ pub fn pack(path: impl AsRef<Path>) -> Vec<u8> {
 }
 
 pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
-    if(!path.as_ref().exists()) {
+    if !path.as_ref().exists() {
         fs::create_dir_all(path.as_ref()).expect("Cannot create directory");
     }
     unpack::unpack(archive, path);

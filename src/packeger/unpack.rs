@@ -32,8 +32,8 @@ pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
             }
             EntryType::File => {
                 let size = header.get_size();
-                println!("size:{} bytes",size);
-                let mut file = archive[i..i + size].to_vec();
+                
+                let file = archive[i..i + size].to_vec();
                 fs::write(target_path, file).expect("Cannot write file");
 
                 i += size;

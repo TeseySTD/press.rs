@@ -57,15 +57,16 @@ fn main() {
             std::io::stdin()
                 .read_line(&mut input)
                 .expect("Could not read line");
-            let mut path = Path::new(input.trim());
+            
+            let path = Path::new(input.trim());
     
             if !path.exists() {
                 println!("Path does not exist");
                 continue;
             }
             else {
-                packeger::unpack(
-                    std::fs::read(path).expect("Cannot read file"),
+                compressor::decompress(
+                    path,
                     "./test/decompressed"
                 );
             }

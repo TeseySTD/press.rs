@@ -41,6 +41,14 @@ impl Header {
         }
     }
 
+    pub fn from_values(name: String, size: usize, typeflag: EntryType) -> Header {
+        let mut header = Header::new();
+        header.set_name(name);
+        header.set_size(size);
+        header.set_typeflag(typeflag);
+        return header;
+    }
+
     pub fn get_name(&self) -> String {
         let len = self.name.iter()
             .position(|&b| b == 0)
