@@ -2,6 +2,8 @@ use std::{io::Write, path::Path};
 
 use compressor::{EXTENSION, compress};
 
+use crate::utils::print_with_size_formats;
+
 mod compressor;
 mod packeger;
 mod utils;
@@ -32,15 +34,15 @@ fn main() {
                 let compressed =
                     compress(&mut path).expect("Cannot compress file/folder using given path");
 
-                let size = utils::get_file_or_folder_size(path).expect("Cannot get size for given path") as u64;
+                let size = utils::get_file_or_folder_size(path).expect("Cannot get size for given path") as usize;
         
                 let compressed_size = compressed.len();
 
                 std::fs::write(path.with_extension(EXTENSION), &compressed)
                     .expect("Cannot write compressed file");
 
-                println!("Original file size: {} bytes", size);
-                println!("Compressed file size: {} bytes", compressed_size);
+                print_with_size_formats("Original file size", size);
+                print_with_size_formats("Compressed file size", compressed_size);
             }
         } else if choice == "2" {
             print_immediatly("Enter path to decompress: ");
@@ -70,6 +72,7 @@ fn choice() -> String {
     let mut input = String::new();
 
     loop {
+        input.clear();
         println!("Choose an option:");
         println!("1. Compress");
         println!("2. Decompress");
