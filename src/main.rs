@@ -1,8 +1,6 @@
-use std::{io::Write, path::Path};
-
-use compressor::{EXTENSION, compress};
-
-use crate::utils::print_with_size_formats;
+use std::{io::{self, Write}, path::Path};
+use compressor::{EXTENSION, compress, decompress};
+use crate::utils::{get_file_or_folder_size, print_with_size_formats};
 
 mod compressor;
 mod packeger;
@@ -10,83 +8,64 @@ mod utils;
 
 fn main() {
     loop {
-        let choice = choice();
-
-        if choice == "1" {
-            print_immediatly("Enter path to compress: ");
-            let mut input = String::new();
-            std::io::stdin()
-                .read_line(&mut input)
-                .expect("Could not read line");
-            let mut path = Path::new(input.trim());
-
-            println!(
-                "Location of compressed file will be: {}",
-                path.with_extension(EXTENSION)
-                    .to_str()
-                    .expect("Cannot create path")
-            );
-
-            if !path.exists() {
-                println!("Path does not exist");
-                continue;
-            } else {
-                let compressed =
-                    compress(&mut path).expect("Cannot compress file/folder using given path");
-
-                let size = utils::get_file_or_folder_size(path).expect("Cannot get size for given path") as usize;
-        
-                let compressed_size = compressed.len();
-
-                std::fs::write(path.with_extension(EXTENSION), &compressed)
-                    .expect("Cannot write compressed file");
-
-                print_with_size_formats("Original file size", size);
-                print_with_size_formats("Compressed file size", compressed_size);
-            }
-        } else if choice == "2" {
-            print_immediatly("Enter path to decompress: ");
-            let mut input = String::new();
-            std::io::stdin()
-                .read_line(&mut input)
-                .expect("Could not read line");
-
-            let path = Path::new(input.trim());
-
-            if !path.exists() {
-                println!("Path does not exist");
-                continue;
-            } else {
-                compressor::decompress(path, "./test_data/decompressed");
-            }
+        println!("\n--- PressRS Menu ---");
+        match prompt("1. Compress\n2. Decompress\n(q to quit)\n>> ").as_str() {
+            "1" => run_compress(),
+            "2" => run_decompress(),
+            "q" | "exit" => break,
+            _ => println!("Invalid option"),
         }
     }
 }
 
-fn print_immediatly(s: &str) {
-    print!("{}", s);
-    std::io::stdout().flush().expect("Could not flush stdout");
+fn run_compress() {
+    let input = prompt("Path to compress: ");
+    let path = Path::new(&input);
+
+    if !path.exists() {
+        return println!("Error: Path does not exist.");
+    }
+
+    let dest = path.with_extension(EXTENSION);
+    println!("Compressing to: {:?}", dest);
+
+    match compress(path) {
+        Ok(compressed_data) => {
+            if let Err(e) = std::fs::write(&dest, &compressed_data) {
+                println!("Failed to write file: {}", e);
+                return;
+            }
+
+            let original_size = get_file_or_folder_size(path).unwrap_or(0) as usize;
+            print_with_size_formats("Original size", original_size);
+            print_with_size_formats("Compressed size", compressed_data.len());
+        },
+        Err(e) => println!("Compression failed: {}", e),
+    }
 }
 
-fn choice() -> String {
+fn run_decompress() {
+    let input = prompt("Path to decompress: ");
+    let path = Path::new(&input);
+
+    if !path.exists() {
+        return println!("Error: Path does not exist.");
+    }
+
+    let output_dir = "./test_data/decompressed"; 
+    
+    std::fs::create_dir_all(output_dir).ok(); 
+
+    println!("Decompressing...");
+    decompress(path, output_dir);
+    println!("Done. Output in: {}", output_dir);
+}
+
+fn prompt(msg: &str) -> String {
+    print!("{}", msg);
+    io::stdout().flush().expect("Flush failed");
+    
     let mut input = String::new();
-
-    loop {
-        input.clear();
-        println!("Choose an option:");
-        println!("1. Compress");
-        println!("2. Decompress");
-        print_immediatly("Enter your choice: ");
-
-        std::io::stdin()
-            .read_line(&mut input)
-            .expect("Could not read line");
-
-        if input.trim() != "1" && input.trim() != "2" {
-            println!("Invalid choice");
-            continue;
-        }
-
-        return input.trim().to_string();
-    }
+    io::stdin().read_line(&mut input).expect("Read failed");
+    input.trim().to_string()
 }
