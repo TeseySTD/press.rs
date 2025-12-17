@@ -1,6 +1,9 @@
-use std::{io::{self, Write}, path::Path};
-use compressor::{EXTENSION, compress, decompress};
 use crate::utils::{get_file_or_folder_size, print_with_size_formats};
+use compressor::{EXTENSION, compress, decompress};
+use std::{
+    io::{self, Write},
+    path::Path,
+};
 
 mod compressor;
 mod packager;
@@ -39,7 +42,7 @@ fn run_compress() {
             let original_size = get_file_or_folder_size(path).unwrap_or(0) as usize;
             print_with_size_formats("Original size", original_size);
             print_with_size_formats("Compressed size", compressed_data.len());
-        },
+        }
         Err(e) => println!("Compression failed: {}", e),
     }
 }
@@ -52,9 +55,9 @@ fn run_decompress() {
         return println!("Error: Path does not exist.");
     }
 
-    let output_dir = "./test_data/decompressed"; 
-    
-    std::fs::create_dir_all(output_dir).ok(); 
+    let output_dir = "./test_data/decompressed";
+
+    std::fs::create_dir_all(output_dir).ok();
 
     println!("Decompressing...");
     decompress(path, output_dir);
@@ -64,7 +67,7 @@ fn run_decompress() {
 fn prompt(msg: &str) -> String {
     print!("{}", msg);
     io::stdout().flush().expect("Flush failed");
-    
+
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Read failed");
     input.trim().to_string()

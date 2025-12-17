@@ -1,9 +1,6 @@
-use std::{
-    fs,
-    path::Path,
-};
-use header:: ENTRY_SIZE;
+use header::ENTRY_SIZE;
 use pack::{pack_directory, pack_file};
+use std::{fs, path::Path};
 
 mod header;
 mod pack;

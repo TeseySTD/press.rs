@@ -214,10 +214,10 @@ mod tests {
             // Assert
             // 0-2: 111 (7)
             // 3-5: 101 (5)
-            // 6-8: 001 (1) 
+            // 6-8: 001 (1)
             //
             // Byte 0 (bits 0-7): 0(bit7) 1(bit6) 1(bit5) 0(bit4) 1(bit3) 1(bit2) 1(bit1) 1(bit0)
-            // Binary: 01101111 = 0x6F 
+            // Binary: 01101111 = 0x6F
             // Byte 1 (bit 8): 0
 
             assert_eq!(writer.output.len(), 2);
@@ -269,7 +269,7 @@ mod tests {
         #[test]
         fn test_compress_simple_string() {
             // Arrange
-            let input = b"ABABABA"; 
+            let input = b"ABABABA";
 
             // Act
             let output = lzw_compress(input);
