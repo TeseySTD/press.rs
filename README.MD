@@ -1,4 +1,4 @@
-<div style="text-align: center;">
+<div style="text-align: center; margin: auto;">
     <img src="./press_rs_logo.svg" alt="press.rs logo" width="175px">
 </div>
 
