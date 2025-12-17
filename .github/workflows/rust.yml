@@ -2,9 +2,9 @@ name: Rust CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -32,3 +32,10 @@ jobs:
 
       - name: Run tests
         run: cargo test --release --verbose
+        
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: press_rs_release
+          path: target/release/press_rs
+          if-no-files-found: error
