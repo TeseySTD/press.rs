@@ -1,6 +1,6 @@
 use crate::compressor::{MAX_CODE_WIDTH, MAX_ENTRY_COUNT};
 
-use super::INITIAL_WIDTH;
+use super::INITIAL_CODE_WIDTH;
 
 struct BitWriter {
     buffer: u32,
@@ -55,7 +55,7 @@ impl PrefixTree {
     fn new(code_size: u8) -> Self {
         let mut nodes = Vec::with_capacity(MAX_ENTRY_COUNT);
         let code_count = 1 << code_size;
-        nodes.resize(code_count, PrefixTreeNode::NoChild);
+        nodes.resize(code_count + 2, PrefixTreeNode::NoChild);
         Self {
             nodes,
             code_size,
@@ -66,7 +66,7 @@ impl PrefixTree {
     #[inline(always)]
     fn reset(&mut self) {
         self.nodes.clear();
-        self.nodes.resize(self.code_count, PrefixTreeNode::NoChild)
+        self.nodes.resize(self.code_count + 2, PrefixTreeNode::NoChild)
     }
 
     #[inline(always)]
@@ -132,8 +132,8 @@ impl PrefixTree {
     }
 }
 
-pub fn compress(data: &[u8]) -> Vec<u8> {
-    let mut tree = PrefixTree::new(INITIAL_WIDTH);
+pub fn lzw_compress(data: &[u8]) -> Vec<u8> {
+    let mut tree = PrefixTree::new(INITIAL_CODE_WIDTH);
     let mut writer = BitWriter::new();
 
     let mut bytes = data.iter();
@@ -142,10 +142,12 @@ pub fn compress(data: &[u8]) -> Vec<u8> {
         return vec![];
     }
 
-    let mut write_size = INITIAL_WIDTH + 1;
-    let clear_code = 1 << INITIAL_WIDTH;
-    let end_of_information = (1 << INITIAL_WIDTH) + 1;
+    let mut write_size = INITIAL_CODE_WIDTH + 1;
+    let clear_code = 1 << INITIAL_CODE_WIDTH;
+    let end_of_information = (1 << INITIAL_CODE_WIDTH) + 1;
     let mut size_increase_mask = 1 << write_size;
+
+    writer.write(clear_code, write_size);
 
     let mut prefix_index = *k.unwrap() as u16;
 
@@ -155,14 +157,14 @@ pub fn compress(data: &[u8]) -> Vec<u8> {
         } else {
             let index_of_new_entry = tree.add(prefix_index, *byte);
             writer.write(prefix_index, write_size);
-
             prefix_index = *byte as u16;
+            
             if index_of_new_entry == size_increase_mask {
                 if write_size < MAX_CODE_WIDTH {
                     write_size += 1;
                 } else {
                     writer.write(clear_code, MAX_CODE_WIDTH);
-                    write_size = INITIAL_WIDTH + 1;
+                    write_size = INITIAL_CODE_WIDTH + 1;
                     tree.reset();
                 }
                 size_increase_mask = 1 << write_size;

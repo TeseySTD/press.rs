@@ -57,7 +57,7 @@ fn main() {
                 println!("Path does not exist");
                 continue;
             } else {
-                compressor::decompress(path, "./test/decompressed");
+                compressor::decompress(path, "./test_data/decompressed");
             }
         }
     }
