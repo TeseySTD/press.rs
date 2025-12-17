@@ -45,7 +45,7 @@ where
 }
 
 pub fn lzw_decompress(path: impl AsRef<Path>) -> Vec<u8> {
-    const MAX_TABLE_SIZE: usize = MAX_ENTRY_COUNT - 1; // 4096
+    const MAX_TABLE_SIZE: usize = MAX_ENTRY_COUNT - 1;
     const MAX_STACK_SIZE: usize = MAX_TABLE_SIZE;
 
     let mut prefix: [u16; MAX_TABLE_SIZE] = [0; MAX_TABLE_SIZE];
@@ -53,7 +53,6 @@ pub fn lzw_decompress(path: impl AsRef<Path>) -> Vec<u8> {
     let mut length: [usize; MAX_TABLE_SIZE] = [0; MAX_TABLE_SIZE];
     let mut decoding_stack: [u8; MAX_STACK_SIZE] = [0; MAX_STACK_SIZE];
 
-    // ВИПРАВЛЕНО: Використання BufReader для швидкого читання
     let file = File::open(path).expect("Cannot open file");
     let mut reader = BitReader::new(BufReader::new(file));
     
@@ -129,7 +128,6 @@ pub fn lzw_decompress(path: impl AsRef<Path>) -> Vec<u8> {
             length[next_index as usize] = length[previous_code.unwrap() as usize] + 1;
             next_index += 1;
             
-            // Логіка зміни розміру коду
             if next_index == size_increase_mask && read_size < MAX_CODE_WIDTH {
                 read_size += 1;
                 size_increase_mask = 1 << read_size;

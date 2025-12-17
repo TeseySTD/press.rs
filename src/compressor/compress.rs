@@ -47,8 +47,7 @@ enum PrefixTreeNode {
 
 struct PrefixTree {
     nodes: Vec<PrefixTreeNode>,
-    code_size: u8,
-    code_count: usize,
+    code_count: usize
 }
 
 impl PrefixTree {
@@ -58,7 +57,6 @@ impl PrefixTree {
         nodes.resize(code_count + 2, PrefixTreeNode::NoChild);
         Self {
             nodes,
-            code_size,
             code_count,
         }
     }

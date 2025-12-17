@@ -3,7 +3,7 @@ use compressor::{EXTENSION, compress, decompress};
 use crate::utils::{get_file_or_folder_size, print_with_size_formats};
 
 mod compressor;
-mod packeger;
+mod packager;
 mod utils;
 
 fn main() {

@@ -1,8 +1,8 @@
 use std::time::{Instant};
 use std::{fmt::Error, path::Path};
 
-use crate::packeger::pack;
-use crate::packeger::unpack;
+use crate::packager::pack;
+use crate::packager::unpack;
 
 mod compress;
 mod decompress;
