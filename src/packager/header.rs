@@ -96,3 +96,84 @@ impl Header {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_entry_type_conversion() {
+        // Arrange
+        let file_byte = EntryType::File.as_byte();
+        let dir_byte = EntryType::Directory.as_byte();
+
+        // Act
+        let file_type = EntryType::new(file_byte);
+        let dir_type = EntryType::new(dir_byte);
+
+        // Assert
+        assert_eq!(file_type, EntryType::File);
+        assert_eq!(dir_type, EntryType::Directory);
+    }
+
+    #[test]
+    fn test_header_round_trip() {
+        // Arrange
+        let mut header = Header::new();
+        let name = "test_file.txt";
+        let size = 1024;
+
+        header.set_name(name.to_string());
+        header.set_size(size);
+        header.set_typeflag(EntryType::File);
+
+        // Act
+        let bytes = header.to_bytes();
+        let decoded = Header::from_bytes(bytes);
+
+        // Assert
+        assert_eq!(decoded.get_name(), name);
+        assert_eq!(decoded.get_size(), size);
+        assert_eq!(decoded.typeflag[0], EntryType::File.as_byte());
+    }
+
+    #[test]
+    fn test_name_truncation() {
+        // Arrange
+        let mut header = Header::new();
+        let long_name = "a".repeat(NAME_SIZE + 50);
+
+        // Act
+        header.set_name(long_name.clone());
+        let stored_name = header.get_name();
+
+        // Assert
+        assert_eq!(stored_name.len(), NAME_SIZE);
+        assert_eq!(stored_name, "a".repeat(NAME_SIZE));
+    }
+
+    #[test]
+    fn test_size_parsing_zero() {
+        // Arrange
+        let mut header = Header::new();
+
+        // Act & Assert
+        header.set_size(0);
+        let bytes = header.to_bytes();
+        let decoded = Header::from_bytes(bytes);
+        assert_eq!(decoded.get_size(), 0);
+    }
+
+    #[test]
+    fn test_size_parsing_large() {
+        // Arrange
+        let mut header = Header::new();
+        let large_size = 999999;
+
+        // Act & Assert
+        header.set_size(large_size);
+        let bytes_l = header.to_bytes();
+        let decoded_l = Header::from_bytes(bytes_l);
+        assert_eq!(decoded_l.get_size(), large_size);
+    }
+}
