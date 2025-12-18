@@ -4,7 +4,7 @@ pub const TYPEFLAG_SIZE: usize = 1;
 
 pub const ENTRY_SIZE: usize = NAME_SIZE + SIZE + TYPEFLAG_SIZE;
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Debug)]
 pub enum EntryType {
     File,
     Directory,
@@ -78,7 +78,7 @@ impl Header {
         self.typeflag = [typeflag.as_byte()];
     }
 
-    pub fn as_bytes(&self) -> [u8; ENTRY_SIZE] {
+    pub fn to_bytes(&self) -> [u8; ENTRY_SIZE] {
         let mut bytes = [0; ENTRY_SIZE];
         bytes[..NAME_SIZE].copy_from_slice(&self.name);
         bytes[NAME_SIZE..NAME_SIZE + SIZE].copy_from_slice(&self.size);

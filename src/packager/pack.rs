@@ -10,7 +10,7 @@ pub fn pack_directory(root: &Path, path: &Path) -> Vec<u8> {
 
     let header = Header::from_values(rel_str, 0, EntryType::Directory);
 
-    stream.extend(header.as_bytes());
+    stream.extend(header.to_bytes());
 
     for entry in fs::read_dir(path).expect("Cannot read directory") {
         let entry = entry.expect("Cannot read directory entry");
@@ -43,7 +43,7 @@ pub fn pack_file(root: &Path, path: &Path) -> Vec<u8> {
         EntryType::File,
     );
 
-    stream.extend(header.as_bytes());
+    stream.extend(header.to_bytes());
 
     let mut data = fs::read(path).expect("Cannot read file");
     data = file_as_entries(data);
