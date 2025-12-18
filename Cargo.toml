@@ -1,8 +1,8 @@
-[package]
-name = "press_rs"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = [
+    "press_rs",
+    "website",
+]
+resolver = "2"
 
-[dev-dependencies]
-rand = "0.9.2"
-tempfile = "3.8"
+default-members = ["press_rs"]
