@@ -6,7 +6,7 @@ pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
     let mut i = 0;
     let mut block_was_empty = false;
 
-    while i < archive.len() {
+    while i + ENTRY_SIZE <= archive.len() {
         if block_is_empty(&archive[i..i + ENTRY_SIZE]) && block_was_empty {
             println!("Finished unpacking");
             return;
@@ -32,6 +32,10 @@ pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
             }
             EntryType::File => {
                 let size = header.get_size();
+
+                if let Some(parent) = target_path.parent() {
+                    fs::create_dir_all(parent).ok();
+                }
 
                 let file = archive[i..i + size].to_vec();
                 fs::write(target_path, file).expect("Cannot write file");
