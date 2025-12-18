@@ -31,46 +31,45 @@ pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
 mod tests {
     use super::*;
     use std::fs;
-    use std::path::Path;
+    use tempfile::tempdir;
+
     #[test]
     fn test_pack_unpack_integration_flow() {
         // Arrange
-        let root = "test_pack_env";
-        let src_dir = format!("{}/src", root);
-        let dst_dir = format!("{}/dst", root);
+        let dir = tempdir().expect("Failed to create temp dir");
+        let src_dir = dir.path().join("src");
+        let dst_dir = dir.path().join("dst");
         let file_name = "hello.txt";
-        let content = "Hello Integration Test";
+        let content = "Hello Tempfile Integration Test Content";
 
-        fs::create_dir_all(&src_dir).expect("Failed to create src dir");
-        fs::write(format!("{}/{}", src_dir, file_name), content).expect("Failed to write file");
-
-        let archive_data = pack(Path::new(&src_dir));
+        fs::create_dir_all(&src_dir).unwrap();
+        fs::write(src_dir.join(file_name), content).unwrap();
 
         // Act
-        unpack(archive_data, Path::new(&dst_dir));
+        let archive_data = pack(&src_dir);
+        unpack(archive_data, &dst_dir);
 
         // Assert
-        let unpacked_file_path = format!("{}/{}", dst_dir, file_name);
-        assert!(
-            Path::new(&unpacked_file_path).exists(),
-            "Unpacked file should exist"
-        );
+        let unpacked_file_path = dst_dir.join(file_name);
+        assert!(unpacked_file_path.exists(), "Unpacked file should exist");
 
-        let unpacked_content =
-            fs::read_to_string(&unpacked_file_path).expect("Failed to read unpacked file");
-        assert_eq!(unpacked_content, content);
-
-        fs::remove_dir_all(root).ok();
+        let unpacked_content = fs::read_to_string(unpacked_file_path).unwrap();
+        assert_eq!(unpacked_content, content, "Content must match original");
     }
 
     #[test]
     fn test_pack_non_existent_path() {
         // Arrange
-        let path = Path::new("non_existent_folder");
+        let dir = tempdir().expect("Failed to create temp dir");
+        let non_existent = dir.path().join("ghost_folder");
 
-        let result = std::panic::catch_unwind(|| pack(path));
+        // Act
+        let result = std::panic::catch_unwind(|| pack(&non_existent));
 
         // Assert
-        assert!(result.is_err() || result.unwrap().is_empty());
+        assert!(
+            result.is_err() || result.unwrap().is_empty(),
+            "Should handle non-existent path gracefully"
+        );
     }
 }

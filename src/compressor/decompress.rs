@@ -197,31 +197,28 @@ mod tests {
         use super::*;
         use crate::compressor::compress::lzw_compress;
         use rand::{Rng, rng};
+        use tempfile::tempdir;
 
         // Helper for round-trip tests
         fn run_round_trip(name: &str, input: &[u8]) {
             // Arrange
+            let dir = tempdir().expect("Failed to create temp dir");
             let compressed = lzw_compress(input);
-            let temp_file = format!("test_rt_{}.lzw", name);
-            fs::write(&temp_file, &compressed).expect("Failed to write temp file");
+            let temp_file_path = dir.path().join(format!("{}.lzw", name));
+            fs::write(&temp_file_path, &compressed).expect("Failed to write temp file");
 
             // Act
-            let decompressed = lzw_decompress(&temp_file);
+            let decompressed = lzw_decompress(temp_file_path.to_str().unwrap());
 
             // Assert
-            if input != decompressed.as_slice() {
-                // Clean up before panicking
-                let _ = fs::remove_file(&temp_file);
-                panic!(
-                    "Mismatch for {}: len {} vs {}",
-                    name,
-                    input.len(),
-                    decompressed.len()
-                );
-            }
-
-            // Clean up
-            fs::remove_file(temp_file).ok();
+            assert_eq!(
+                input,
+                decompressed.as_slice(),
+                "Mismatch for {}: len {} vs {}",
+                name,
+                input.len(),
+                decompressed.len()
+            );
         }
 
         #[test]

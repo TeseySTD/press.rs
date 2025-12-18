@@ -65,47 +65,41 @@ pub fn file_as_entries(mut file: Vec<u8>) -> Vec<u8> {
 mod tests {
     use super::*;
     use std::fs;
-    use std::path::Path;
+    use tempfile::tempdir;
 
     #[test]
     fn test_pack_file_logic() {
         // Arrange
-        // Create a temporary directory to ensure a clear root/file hierarchy
-        let test_root = Path::new("test_pack_file_dir");
-        let test_file = test_root.join("unit_test_pack_file.txt");
+        let dir = tempdir().expect("Failed to create temp dir");
+        let test_file = dir.path().join("unit_test.txt");
         let content = b"test content for unit packing";
-
-        fs::create_dir_all(test_root).expect("Failed to create test root");
-        fs::write(&test_file, content).expect("Failed to write test file");
+        fs::write(&test_file, content).unwrap();
 
         // Act
-        let result = pack_file(&test_root, &test_file);
+        let result = pack_file(dir.path(), &test_file);
 
         // Assert
         assert!(!result.is_empty());
-        // Header (169 bytes) + content
         assert!(result.len() >= crate::packager::header::ENTRY_SIZE + content.len());
-
-        // Cleanup
-        fs::remove_dir_all(test_root).ok();
     }
+
     #[test]
     fn test_pack_directory_recursive_logic() {
         // Arrange
-        let root = "unit_test_pack_dir";
-        let sub = format!("{}/nested", root);
+        let dir = tempdir().expect("Failed to create temp dir");
+        let sub = dir.path().join("nested");
         fs::create_dir_all(&sub).unwrap();
-        fs::write(format!("{}/1.txt", root), "c1").unwrap();
-        fs::write(format!("{}/2.txt", sub), "c2").unwrap();
+        fs::write(dir.path().join("1.txt"), "c1").unwrap();
+        fs::write(sub.join("2.txt"), "c2").unwrap();
 
         // Act
-        let result = pack_directory(Path::new(root), Path::new(root));
+        let result = pack_directory(dir.path(), dir.path());
 
         // Assert
         assert!(!result.is_empty());
         // Should contain entries for 2 files and potentially directories
         assert!(result.len() > crate::packager::header::ENTRY_SIZE * 2);
 
-        fs::remove_dir_all(root).ok();
+        fs::remove_dir_all(dir).ok();
     }
 }

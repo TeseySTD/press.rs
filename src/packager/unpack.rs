@@ -56,10 +56,11 @@ fn block_is_empty(block: &[u8]) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use tempfile::tempdir;
+
     use super::*;
     use crate::packager::header::{EntryType, Header};
     use std::fs;
-    use std::path::Path;
 
     #[test]
     fn test_unpack_file_entry() {
@@ -75,48 +76,45 @@ mod tests {
         let mut data = header.to_bytes().to_vec();
         data.extend_from_slice(content);
 
-        let output_path = Path::new("unit_test_unpack_out");
+        let dir = tempdir().expect("Failed to create temp dir");
 
         // Act
-        unpack(data, output_path);
+        unpack(data, dir.path());
 
         // Assert
-        let target_file = output_path.join(file_name);
+        let target_file = dir.path().join(file_name);
         assert!(target_file.exists());
         assert_eq!(fs::read(target_file).unwrap(), content);
-
-        fs::remove_dir_all(output_path).ok();
     }
 
     #[test]
     fn test_unpack_empty_buffer() {
         // Arrange
         let empty_data = vec![];
-        let output_path = Path::new("unit_test_unpack_empty");
+        let dir = tempdir().expect("Failed to create temp dir");
 
         // Act
-        // Unpacking empty data should not panic and should not create anything
-        unpack(empty_data, output_path);
+        unpack(empty_data, dir.path());
 
         // Assert
-        assert!(!output_path.exists() || fs::read_dir(output_path).unwrap().count() == 0);
-
-        fs::remove_dir_all(output_path).ok();
+        let files_count = fs::read_dir(dir.path()).unwrap().count();
+        assert_eq!(files_count, 0);
     }
 
     #[test]
     fn test_unpack_corrupted_short_data() {
         // Arrange
-        // Data shorter than a single header
-        let corrupted_data = vec![0u8; 10];
-        let output_path = Path::new("unit_test_unpack_corrupt");
+        let corrupted_data = vec![0u8; ENTRY_SIZE - 1]; // Data shorter than ENTRY_SIZE
+        let dir = tempdir().expect("Failed to create temp dir");
 
-        // Act
-        unpack(corrupted_data, output_path);
+        // Act & Assert
+        // Should not panic due to the boundary check
+        unpack(corrupted_data, dir.path());
 
-        // Assert
-        assert!(!output_path.exists() || fs::read_dir(output_path).unwrap().count() == 0);
-
-        fs::remove_dir_all(output_path).ok();
+        let files_count = fs::read_dir(dir.path()).unwrap().count();
+        assert_eq!(
+            files_count, 0,
+            "No files should be created from corrupted data"
+        );
     }
 }
