@@ -1,13 +1,11 @@
-use crate::utils::{get_file_or_folder_size, print_with_size_formats};
-use compressor::{EXTENSION, compress, decompress};
+mod utils;
+
+use press_rs::compressor::{EXTENSION, compress, decompress};
 use std::{
     io::{self, Write},
     path::Path,
 };
-
-mod compressor;
-mod packager;
-mod utils;
+use utils::{get_file_or_folder_size, print_with_size_formats};
 
 fn main() {
     loop {
