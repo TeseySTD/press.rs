@@ -43,8 +43,7 @@ use press_rs;
 
 fn main() {
     // 1. Pack a directory and compress it
-    let packed = press_rs::packager::pack("my_folder");
-    let compressed = press_rs::compressor::compress_raw(&packed);
+    let compressed = press_rs::compressor::compress_from_path(new Path::new("my_folder")).unwrap();
     
     // 2. Save the result to disk
     std::fs::write("backup.pressrs", compressed).unwrap();
