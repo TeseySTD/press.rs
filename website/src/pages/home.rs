@@ -62,7 +62,7 @@ pub fn home() -> Html {
                     if let Some(file) = files.get(0) {
                         if let Ok(archive_data) = read_as_bytes(file).await {
                             let decompressed = press_rs::compressor::decompress_raw(&archive_data);
-                            let entries = press_rs::packager::unpack_to_entries(decompressed); 
+                            let entries = press_rs::packager::unpack_to_entries(decompressed);
 
                             for entry in entries {
                                 if !entry.is_dir {

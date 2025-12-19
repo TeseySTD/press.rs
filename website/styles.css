@@ -11,6 +11,59 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Markdown */
+.prose h1 {
+    @apply text-4xl font-black mb-8 pb-4 border-b border-zinc-800;
+}
+
+.prose h2 {
+    @apply text-2xl font-bold mt-12 mb-4 text-silver uppercase tracking-wider;
+}
+
+.prose p {
+    @apply text-silver leading-relaxed mb-6;
+}
+
+.prose pre {
+    @apply rounded-xl p-6 bg-black border border-zinc-800 shadow-inner overflow-x-auto;
+}
+
+.prose code {
+    @apply font-mono text-sm bg-zinc-800 px-1 rounded text-white;
+}
+
+pre code {
+    background-color: transparent !important;
+    padding: 0 !important;
+}
+
+.prose ul {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+}
+
+.prose ul ul {
+    list-style-type: circle !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.prose li {
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
 }
