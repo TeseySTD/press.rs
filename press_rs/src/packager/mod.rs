@@ -2,10 +2,20 @@ use header::ENTRY_SIZE;
 use pack::{pack_directory, pack_file};
 use std::{fs, path::Path};
 
+use crate::packager::{pack::pack_from_file_entries, unpack::unpack_to_file_entries};
+
 mod header;
 mod pack;
 mod unpack;
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct FileEntry {
+    pub name: String,
+    pub data: Vec<u8>,
+    pub is_dir: bool,
+}
+
+/// Packs a file or directory into a binary archive
 pub fn pack(path: impl AsRef<Path>) -> Vec<u8> {
     let mut archive = Vec::<u8>::new();
     if path.as_ref().is_dir() {
@@ -20,11 +30,21 @@ pub fn pack(path: impl AsRef<Path>) -> Vec<u8> {
     return archive;
 }
 
+/// Packs a list of file entries into a binary archive. Useful for non-filesystem use.
+pub fn pack_entries(entries: Vec<FileEntry>) -> Vec<u8> {
+    pack_from_file_entries(entries)
+}
+
+/// Unpacks the archive and creates directories/files on the specified path.
 pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
     if !path.as_ref().exists() {
         fs::create_dir_all(path.as_ref()).expect("Cannot create directory");
     }
-    unpack::unpack(archive, path);
+    unpack::unpack_with_dir_creation(archive, path);
+}
+/// Returns a list of unpacked entries. Does not create directories.
+pub fn unpack_to_entries(archive: Vec<u8>) -> Vec<FileEntry> {
+    unpack_to_file_entries(archive)
 }
 
 #[cfg(test)]
@@ -32,6 +52,22 @@ mod tests {
     use super::*;
     use std::fs;
     use tempfile::tempdir;
+
+    #[test]
+    fn test_pack_unpack_in_memory_integration_flow() {
+        let original_entries = vec![FileEntry {
+            name: "a/b/c.txt".to_string(),
+            data: b"nested content".to_vec(),
+            is_dir: false,
+        }];
+
+        let archive = crate::packager::pack_entries(original_entries.clone());
+        let unpacked_entries = unpack_to_entries(archive);
+
+        assert_eq!(original_entries.len(), unpacked_entries.len());
+        assert_eq!(original_entries[0].name, unpacked_entries[0].name);
+        assert_eq!(original_entries[0].data, unpacked_entries[0].data);
+    }
 
     #[test]
     fn test_pack_unpack_integration_flow() {

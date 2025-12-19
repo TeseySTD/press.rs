@@ -1,6 +1,33 @@
 use std::{fs, path::Path};
 
+use crate::packager::FileEntry;
+
 use super::header::{ENTRY_SIZE, EntryType, Header};
+
+pub fn pack_from_file_entries(entries: Vec<FileEntry>) -> Vec<u8> {
+    let mut stream = Vec::new();
+
+    for entry in entries {
+        let entry_type = if entry.is_dir {
+            EntryType::Directory
+        } else {
+            EntryType::File
+        };
+
+        let header = Header::from_values(entry.name, entry.data.len(), entry_type);
+
+        stream.extend(header.to_bytes());
+
+        if !entry.is_dir {
+            let data = file_as_entries(entry.data);
+            stream.extend(data);
+        }
+    }
+
+    // Add 2 empty entries to mark the end of the archive
+    stream.extend(std::iter::repeat(0).take(ENTRY_SIZE * 2));
+    stream
+}
 
 pub fn pack_directory(root: &Path, path: &Path) -> Vec<u8> {
     let mut stream = Vec::new();
@@ -66,6 +93,25 @@ mod tests {
     use super::*;
     use std::fs;
     use tempfile::tempdir;
+
+    #[test]
+    fn test_pack_from_file_entries_logic() {
+        let entries = vec![
+            FileEntry {
+                name: "test.txt".to_string(),
+                data: b"hello binary".to_vec(),
+                is_dir: false,
+            },
+            FileEntry {
+                name: "folder".to_string(),
+                data: vec![],
+                is_dir: true,
+            },
+        ];
+
+        let result = pack_from_file_entries(entries);
+        assert!(result.len() >= ENTRY_SIZE * 4); // 2 headers + 1 file + 2 empty
+    }
 
     #[test]
     fn test_pack_file_logic() {
