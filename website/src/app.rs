@@ -1,6 +1,6 @@
-use crate::components::docs::Docs;
-use crate::components::home::Home;
-use crate::components::nav::Nav;
+use crate::pages::docs::Docs;
+use crate::pages::home::Home;
+use crate::components::app::nav::Nav;
 use yew::prelude::*;
 use yew_router::prelude::*;
 

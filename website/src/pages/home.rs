@@ -1,3 +1,6 @@
+use crate::components::home::file_drop_zone::FileDropZone;
+use crate::components::home::mode_toggle::ModeToggle;
+
 use crate::utils::download_file;
 use gloo_file::{File, futures::read_as_bytes};
 use press_rs::packager::FileEntry;
@@ -13,7 +16,6 @@ pub fn home() -> Html {
 
     let on_file_change = {
         let selected_files = selected_files.clone();
-
         Callback::from(move |e: Event| {
             let input: HtmlInputElement = e.target_unchecked_into();
             if let Some(files) = input.files() {
@@ -60,7 +62,7 @@ pub fn home() -> Html {
                     if let Some(file) = files.get(0) {
                         if let Ok(archive_data) = read_as_bytes(file).await {
                             let decompressed = press_rs::compressor::decompress_raw(&archive_data);
-                            let entries = press_rs::packager::unpack_to_entries(decompressed);
+                            let entries = press_rs::packager::unpack_to_entries(decompressed); 
 
                             for entry in entries {
                                 if !entry.is_dir {
@@ -79,45 +81,15 @@ pub fn home() -> Html {
         <div class="flex flex-col items-center justify-center min-h-[80vh] px-4 animate-fade-in bg-black">
             <div class="max-w-2xl w-full bg-zinc-900 border border-silver/20 rounded-2xl p-8 shadow-2xl transition-all duration-500 hover:border-silver/50">
 
-                <div class="flex justify-center space-x-8 mb-12">
-                    <button
-                        onclick={let ic = is_compress.clone(); move |_| ic.set(true)}
-                        class={classes!("text-xl", "font-bold", "pb-2", "transition-all", "tracking-widest",
-                            if *is_compress { "text-white border-b-2 border-white" } else { "text-silver hover:text-white" })}>
-                        {"ENCODE"}
-                    </button>
-                    <button
-                        onclick={let ic = is_compress.clone(); move |_| ic.set(false)}
-                        class={classes!("text-xl", "font-bold", "pb-2", "transition-all", "tracking-widest",
-                            if !*is_compress { "text-white border-b-2 border-white" } else { "text-silver hover:text-white" })}>
-                        {"DECODE"}
-                    </button>
-                </div>
+                <ModeToggle
+                    is_compress={*is_compress}
+                    on_change={Callback::from(move |val| is_compress.set(val))}
+                />
 
-                <div class="border-2 border-dashed border-silver/30 rounded-xl py-16 flex flex-col items-center group hover:bg-zinc-800/50 transition-all cursor-pointer relative">
-                    <input type="file"
-                        multiple=true
-                        onchange={on_file_change}
-                        class="absolute inset-0 opacity-0 cursor-pointer" />
-
-                    <div class="w-20 h-20 mb-4 text-silver group-hover:text-alabaster transition-colors duration-500">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                            </path>
-                        </svg>
-                    </div>
-
-                    <p class="text-silver group-hover:text-alabaster font-medium tracking-wide">
-                        {
-                            if selected_files.is_empty() {
-                                "Choose file or folder to process".to_string()
-                            } else {
-                                format!("{} items selected", selected_files.len())
-                            }
-                        }
-                    </p>
-                </div>
+                <FileDropZone
+                    on_change={on_file_change}
+                    files_count={selected_files.len()}
+                />
 
                 if !selected_files.is_empty() {
                     <button
