@@ -291,7 +291,7 @@ mod tests {
             let compressed = lzw_compress(data);
             let cursor = Cursor::new(compressed);
             let decompressed = lzw_decompress_from_reader(cursor);
-            
+
             assert_eq!(data.as_slice(), decompressed.as_slice());
         }
     }

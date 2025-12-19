@@ -6,8 +6,8 @@ pub fn download_file(name: &str, data: &[u8]) {
     let parts = js_sys::Array::new();
     parts.push(&array.buffer());
 
-    let mut properties = BlobPropertyBag::new();
-    properties.type_("application/octet-stream");
+    let properties = BlobPropertyBag::new();
+    properties.set_type("application/octet-stream");
 
     let blob = Blob::new_with_u8_array_sequence_and_options(&parts, &properties).unwrap();
     let url = Url::create_object_url_with_blob(&blob).unwrap();
