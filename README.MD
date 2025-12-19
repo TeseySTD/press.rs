@@ -6,7 +6,7 @@
 
 [![Rust](https://img.shields.io/badge/Rust-orange?logo=rust&style=flat-square)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](./LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/TeseySTD/press.rs/rust.yml?style=flat-square&label=Build)](https://github.com/TeseySTD/press.rs/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/TeseySTD/press.rs/ci.yml?style=flat-square&label=Build)](https://github.com/TeseySTD/press.rs/actions)
 [![Last Commit](https://img.shields.io/github/last-commit/TeseySTD/press.rs?style=flat-square&label=Last%20Commit)](https://github.com/TeseySTD/press.rs/commits/main)
 </div>
 
