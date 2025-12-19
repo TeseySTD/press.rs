@@ -29,6 +29,14 @@ jobs:
             - name: Setup Trunk
               uses: jetli/trunk-action@v0.5.0
 
+            - name: Setup Node.js (for Tailwind CLI)
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+
+            - name: Install Tailwind
+              run: npm install -g tailwindcss
+
             - name: Build project
               run: trunk build --release --public-url /${{ github.event.repository.name }}/
               working-directory: website
