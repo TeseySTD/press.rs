@@ -1,2 +1,2 @@
 pub mod compressor;
-mod packager;
+pub mod packager;

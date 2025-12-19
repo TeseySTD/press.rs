@@ -23,7 +23,7 @@ where
 {
     fn new(read: R) -> Self {
         Self {
-            read: read,
+            read,
             buffer: 0,
             read_buffer: [0; 1],
             cursor: 0,
@@ -49,7 +49,8 @@ where
     }
 }
 
-pub fn lzw_decompress(path: impl AsRef<Path>) -> Vec<u8> {
+/// Core LZW decompression logic that works with any Read source
+pub fn lzw_decompress_from_reader<R: Read>(reader: R) -> Vec<u8> {
     const MAX_TABLE_SIZE: usize = MAX_ENTRY_COUNT - 1;
     const MAX_STACK_SIZE: usize = MAX_TABLE_SIZE;
 
@@ -58,9 +59,7 @@ pub fn lzw_decompress(path: impl AsRef<Path>) -> Vec<u8> {
     let mut length: [usize; MAX_TABLE_SIZE] = [0; MAX_TABLE_SIZE];
     let mut decoding_stack: [u8; MAX_STACK_SIZE] = [0; MAX_STACK_SIZE];
 
-    let file = File::open(path).expect("Cannot open file");
-    let mut reader = BitReader::new(BufReader::new(file));
-
+    let mut reader = BitReader::new(reader);
     let mut output = Vec::new();
 
     for code in 0..1 << INITIAL_CODE_WIDTH {
@@ -144,7 +143,19 @@ pub fn lzw_decompress(path: impl AsRef<Path>) -> Vec<u8> {
         previous_code = Some(initial_code);
     }
 
-    return output;
+    output
+}
+
+/// Decompress from a byte slice (in-memory)
+pub fn lzw_decompress_bytes(data: &[u8]) -> Vec<u8> {
+    use std::io::Cursor;
+    lzw_decompress_from_reader(Cursor::new(data))
+}
+
+/// Convenience function for decompressing from a file path
+pub fn lzw_decompress(path: impl AsRef<Path>) -> Vec<u8> {
+    let file = File::open(path).expect("Cannot open file");
+    lzw_decompress_from_reader(BufReader::new(file))
 }
 
 #[cfg(test)]
@@ -159,8 +170,6 @@ mod tests {
         #[test]
         fn test_read_variable_widths() {
             // Arrange
-            // Data: 0xFF (11111111), 0x0F (00001111)
-            // Combined bit stream: 00001111 11111111
             let data = vec![0xFF, 0x0F];
             let cursor = Cursor::new(data);
             let mut reader = BitReader::new(cursor);
@@ -193,24 +202,36 @@ mod tests {
         }
     }
 
-    mod lzw_decompress {
+    mod lzw_logic {
         use super::*;
         use crate::compressor::compress::lzw_compress;
         use rand::{Rng, rng};
         use tempfile::tempdir;
 
-        // Helper for round-trip tests
-        fn run_round_trip(name: &str, input: &[u8]) {
-            // Arrange
+        // Helper for round-trip tests (file-based)
+        fn run_round_trip_file(name: &str, input: &[u8]) {
             let dir = tempdir().expect("Failed to create temp dir");
             let compressed = lzw_compress(input);
             let temp_file_path = dir.path().join(format!("{}.lzw", name));
             fs::write(&temp_file_path, &compressed).expect("Failed to write temp file");
 
-            // Act
             let decompressed = lzw_decompress(temp_file_path.to_str().unwrap());
 
-            // Assert
+            assert_eq!(
+                input,
+                decompressed.as_slice(),
+                "Mismatch for {}: len {} vs {}",
+                name,
+                input.len(),
+                decompressed.len()
+            );
+        }
+
+        // Helper for in-memory round-trip tests
+        fn run_round_trip_memory(name: &str, input: &[u8]) {
+            let compressed = lzw_compress(input);
+            let decompressed = lzw_decompress_bytes(&compressed);
+
             assert_eq!(
                 input,
                 decompressed.as_slice(),
@@ -224,17 +245,18 @@ mod tests {
         #[test]
         fn test_short_text() {
             let data = b"TOBEORNOTTOBE";
-            run_round_trip("short", data);
+            run_round_trip_file("short", data);
+            run_round_trip_memory("short_mem", data);
         }
 
         #[test]
         fn test_binary_data() {
-            // Arrange:
             let mut data = Vec::with_capacity(256);
             for i in 0..=255u8 {
                 data.push(i);
             }
-            run_round_trip("binary", &data);
+            run_round_trip_file("binary", &data);
+            run_round_trip_memory("binary_mem", &data);
         }
 
         #[test]
@@ -243,27 +265,34 @@ mod tests {
             for _ in 0..100 {
                 data.extend_from_slice(b"ABCDE");
             }
-            run_round_trip("repetitive", &data);
+            run_round_trip_file("repetitive", &data);
+            run_round_trip_memory("repetitive_mem", &data);
         }
 
         #[test]
         fn test_dictionary_overflow_and_reset() {
-            // Arrange: Generate 100 KB of random data.
-            // Even with high entropy (randomness), LZW will fill the dictionary
-            // because it adds a new entry for every byte pair processed.
-            // 4096 entries fill up very quickly (~4-5KB of data usually enough).
-            // 100KB ensures multiple Clear Codes and dictionary resets.
-
             let mut data = vec![0u8; 100_000];
             rng().fill(&mut data[..]);
 
-            // Act & Assert
-            run_round_trip("overflow_random", &data);
+            run_round_trip_file("overflow_random", &data);
+            run_round_trip_memory("overflow_random_mem", &data);
         }
 
         #[test]
         fn test_single_byte() {
-            run_round_trip("single", b"Z");
+            run_round_trip_file("single", b"Z");
+            run_round_trip_memory("single_mem", b"Z");
+        }
+
+        #[test]
+        fn test_decompress_from_cursor() {
+            // Test with io::Cursor directly
+            let data = b"TESTDATA";
+            let compressed = lzw_compress(data);
+            let cursor = Cursor::new(compressed);
+            let decompressed = lzw_decompress_from_reader(cursor);
+            
+            assert_eq!(data.as_slice(), decompressed.as_slice());
         }
     }
 }

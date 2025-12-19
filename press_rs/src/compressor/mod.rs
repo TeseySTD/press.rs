@@ -13,7 +13,8 @@ const MAX_CODE_WIDTH: u8 = 12;
 
 pub const EXTENSION: &str = "pressrs";
 
-pub fn compress(path: impl AsRef<Path>) -> Result<Vec<u8>, Error> {
+/// Compresses a path and packs it.
+pub fn compress_from_path(path: impl AsRef<Path>) -> Result<Vec<u8>, Error> {
     let now = Instant::now();
     let result = Ok(compress::lzw_compress(&pack(path)));
 
@@ -21,9 +22,20 @@ pub fn compress(path: impl AsRef<Path>) -> Result<Vec<u8>, Error> {
     return result;
 }
 
-pub fn decompress(path: impl AsRef<Path>, output: impl AsRef<Path>) {
+/// Compresses raw data without packing.
+pub fn compress_raw(data: &[u8]) -> Vec<u8> {
+    compress::lzw_compress(data)
+}
+
+/// Decompresses a path and unpacks it.
+pub fn decompress_from_path_to_path(path: impl AsRef<Path>, output: impl AsRef<Path>) {
     let now = Instant::now();
     unpack(decompress::lzw_decompress(path), output);
 
     println!("Decompression took {} ms", now.elapsed().as_millis());
+}
+
+// Decompress raw data without unpacking.
+pub fn decompress_raw(data: &[u8]) -> Vec<u8> {
+    decompress::lzw_decompress_bytes(data)
 }

@@ -1,6 +1,6 @@
 mod utils;
 
-use press_rs::compressor::{EXTENSION, compress, decompress};
+use press_rs::compressor::{EXTENSION, compress_from_path, decompress_from_path_to_path};
 use std::{
     io::{self, Write},
     path::Path,
@@ -30,7 +30,7 @@ fn run_compress() {
     let dest = path.with_extension(EXTENSION);
     println!("Compressing to: {:?}", dest);
 
-    match compress(path) {
+    match compress_from_path(path) {
         Ok(compressed_data) => {
             if let Err(e) = std::fs::write(&dest, &compressed_data) {
                 println!("Failed to write file: {}", e);
@@ -58,7 +58,7 @@ fn run_decompress() {
     std::fs::create_dir_all(output_dir).ok();
 
     println!("Decompressing...");
-    decompress(path, output_dir);
+    decompress_from_path_to_path(path, output_dir);
     println!("Done. Output in: {}", output_dir);
 }
 
