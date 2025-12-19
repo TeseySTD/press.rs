@@ -101,7 +101,7 @@ pub fn home() -> Html {
                 }
             </div>
 
-            <p class="mt-12 text-[10px] text-silver/40 uppercase tracking-[0.5em]">{"Powered by press.rs engine"}</p>
+            <p class="mt-12 text-[10px] text-silver/40 uppercase tracking-[0.5em] animate-engine-light">{"Powered by press.rs engine"}</p>
         </div>
     }
 }

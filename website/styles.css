@@ -22,6 +22,22 @@ body {
     }
 }
 
+@keyframes physical-glow {
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.5);
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+}
+
+.animate-engine-light {
+    animation: physical-glow 3s ease-in-out infinite;
+}
+
 html {
     scroll-behavior: smooth;
 }
