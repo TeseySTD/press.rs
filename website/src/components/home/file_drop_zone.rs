@@ -26,7 +26,7 @@ pub fn file_drop_zone(props: &FileDropZoneProps) -> Html {
             <p class="text-silver group-hover:text-alabaster font-medium tracking-wide">
                 {
                     if props.files_count == 0 {
-                        "Choose file or folder to process".to_string()
+                        "Choose file(s) process".to_string()
                     } else {
                         format!("{} items selected", props.files_count)
                     }
