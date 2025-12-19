@@ -1,3 +1,3 @@
-pub mod nav;
-pub mod home;
 pub mod docs;
+pub mod home;
+pub mod nav;

@@ -163,8 +163,6 @@ mod tests {
             // Assert
             assert_eq!(entries.len(), 0);
         }
-
-
     }
 
     mod disk_unpacking {

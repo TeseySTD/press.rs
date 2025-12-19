@@ -1,6 +1,6 @@
+use crate::app::Route;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use crate::app::Route;
 
 #[function_component(Nav)]
 pub fn nav() -> Html {
@@ -15,7 +15,7 @@ pub fn nav() -> Html {
                     <span class="text-[10px] text-silver tracking-[0.3em] uppercase">{"Compression"}</span>
                 </div>
             </div>
-            
+
             <div class="flex space-x-10 text-xs uppercase tracking-[0.2em] font-medium">
                 <Link<Route> to={Route::Home} classes="text-silver hover:text-white transition-all duration-500 hover:scale-105">
                     {"Home"}
