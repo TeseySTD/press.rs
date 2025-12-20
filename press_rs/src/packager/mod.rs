@@ -58,11 +58,11 @@ pub struct FileEntry {
 }
 
 /// Packs a file or directory into a binary archive
-/// 
+///
 /// # Arguments
 ///
 /// * `path` - The path to the file or directory to pack.
-/// 
+///
 /// # Returns
 ///
 /// Returns a `Vec<u8>` containing the packed archive data.
@@ -93,11 +93,11 @@ pub fn pack(path: impl AsRef<Path>) -> Vec<u8> {
 }
 
 /// Packs a list of file entries into a binary archive. Useful for non-filesystem use.
-/// 
+///
 /// # Arguments
 ///
 /// * `entries` - A vector of [`FileEntry`]s to pack.
-/// 
+///
 /// # Returns
 ///
 /// Returns a `Vec<u8>` containing the packed archive data.
@@ -123,7 +123,7 @@ pub fn pack_entries(entries: Vec<FileEntry>) -> Vec<u8> {
 }
 
 /// Unpacks the archive and creates directories/files on the specified path.
-/// 
+///
 /// # Arguments
 ///
 /// * `archive` - The binary archive data to unpack.
@@ -148,11 +148,11 @@ pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
 }
 
 /// Returns a list of unpacked entries. Does not create directories.
-/// 
+///
 /// # Arguments
 ///
 /// * `archive` - The binary archive data to unpack.
-/// 
+///
 /// # Returns
 ///
 /// Returns a `Vec<FileEntry>` containing the unpacked entries.

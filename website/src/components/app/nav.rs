@@ -91,7 +91,7 @@ pub fn nav() -> Html {
                         <span onclick={close_menu.clone()}>
                             <Link<Route> to={Route::Home}
                                 classes={classes!(
-                                            "hover:text-white", "py-2", "block", "w-full", "text-center", 
+                                            "hover:text-white", "py-2", "block", "w-full", "text-center",
                                             if current_route.as_ref() == Some(&Route::Home) { "text-white" } else { "text-silver" }
                                         )}>
                                 {"Home"}

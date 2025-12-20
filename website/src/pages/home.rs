@@ -43,7 +43,7 @@ pub fn home() -> Html {
         Callback::from(move |_| {
             let files = (*selected_files).clone();
             let is_compress = *is_compress;
-            
+
             let is_processing = is_processing.clone();
             let selected_files_handle = selected_files.clone();
 
@@ -79,9 +79,9 @@ pub fn home() -> Html {
                         }
                     }
                 }
-                
+
                 is_processing.set(false);
-                selected_files_handle.set(Vec::new()); 
+                selected_files_handle.set(Vec::new());
             });
         })
     };

@@ -125,7 +125,6 @@ mod tests {
             assert_eq!(input, decompressed);
         }
 
-
         #[test]
         fn test_compression_ratio_mixed_content() {
             // Arrange
@@ -167,7 +166,7 @@ mod tests {
             // Act
             let compressed = compress_raw(input);
             let decompressed = decompress_raw(&compressed);
-            
+
             // Assert
             assert_eq!(input, &decompressed[..]);
         }
@@ -177,7 +176,7 @@ mod tests {
             for size in [0, 1, 10, 100, 1000, 10000, 100000] {
                 // Arrange
                 let input = vec![0xAB; size];
-                
+
                 // Act
                 let compressed = compress_raw(&input);
                 let decompressed = decompress_raw(&compressed);

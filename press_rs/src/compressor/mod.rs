@@ -57,7 +57,7 @@ pub fn compress_from_path(path: impl AsRef<Path>) -> Result<Vec<u8>, Error> {
 /// Compresses raw byte data using LZW algorithm without packing.
 ///
 /// Use this function if you already have binary data (e.g., a serialized struct or text)
-/// and just want to compress it without creating a file archive structure 
+/// and just want to compress it without creating a file archive structure
 /// or you already have packed data.
 ///
 /// # Arguments
@@ -69,7 +69,7 @@ pub fn compress_from_path(path: impl AsRef<Path>) -> Result<Vec<u8>, Error> {
 /// ``` no_run
 /// use press_rs::compressor::compress_raw;
 /// use press_rs::packager::pack;
-/// 
+///
 /// let data = pack("./my_folder");
 /// let compressed = compress_raw(&data);
 /// ```
@@ -119,13 +119,13 @@ pub fn decompress_from_path_to_path(path: impl AsRef<Path>, output: impl AsRef<P
 /// # Returns
 ///
 /// Returns a `Vec<u8>` containing the original uncompressed data.
-/// 
+///
 /// # Examples
-/// 
+///
 /// ``` no_run
 /// use press_rs::compressor::{decompress_raw, compress_raw};
 /// use press_rs::packager::pack;
-/// 
+///
 /// let data = pack("./my_folder");
 /// let compressed = compress_raw(&data);
 /// let decompressed = decompress_raw(compressed.as_slice());
