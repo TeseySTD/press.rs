@@ -22,7 +22,32 @@ It is designed as an educational project to demonstrate low-level bit manipulati
 - **Custom LZW Implementation**: Uses variable-width codes (9 to 12 bits) with dynamic dictionary resetting.
 - **Archive Capability**: Bundles multiple files and directories into a single `.pressrs` file.
 - **Memory Efficient**: Streams data using buffered readers/writers to handle large files.
+- **Web Compatibility**: Designed for both native and WASM environments.
+- **No external Dependencies**: Built from scratch without any libs/frameworks.
 - **CLI**: Simple text-based interface for selecting modes.
+
+## 📈Performance Benchmarks
+
+| Operation | Input Size | Throughput | Time |
+|-----------|-----------|------------|------|
+| **Compression** | 1 KB | 81 MiB/s | 12 µs |
+| **Compression** | 100 KB | 103 MiB/s | 945 µs |
+| **Compression** | 1 MB | 102 MiB/s | 9.8 ms |
+| **Decompression** | 1 KB | 152 MiB/s | 6.4 µs |
+| **Decompression** | 100 KB | 171 MiB/s | 570 µs |
+| **Pack (small)** | 3 entries | - | 475 ns |
+| **Unpack (small)** | 5 KB archive | - | 328 ns |
+| **Full Pipeline** | Pack + Compress 100 KB | 101 MiB/s | 965 µs |
+| **Full Pipeline** | Decompress + Unpack 100 KB | 175 MiB/s | 576 µs |
+
+*Benchmarks run on intel i5-11400H wsl ubuntu. LZW compression algorithm.*
+
+### Performance Characteristics
+
+- **Linear scaling**: 2x data = 2x time (stable ~100 MiB/s)
+- **Decompression faster**: 1.7x faster than compression
+- **Low overhead**: Small files (<1KB) see ~20% overhead
+- **Predictable**: 1MB ≈ 10ms, 100MB ≈ 1
 
 ## 🛠️ Technical Details
 
@@ -51,26 +76,3 @@ cargo build --release
 ```
 
 Executable will be at `./target/release/press_rs`
-
-## 📈Performance Benchmarks
-
-| Operation | Input Size | Throughput | Time |
-|-----------|-----------|------------|------|
-| **Compression** | 1 KB | 81 MiB/s | 12 µs |
-| **Compression** | 100 KB | 103 MiB/s | 945 µs |
-| **Compression** | 1 MB | 102 MiB/s | 9.8 ms |
-| **Decompression** | 1 KB | 152 MiB/s | 6.4 µs |
-| **Decompression** | 100 KB | 171 MiB/s | 570 µs |
-| **Pack (small)** | 3 entries | - | 475 ns |
-| **Unpack (small)** | 5 KB archive | - | 328 ns |
-| **Full Pipeline** | Pack + Compress 100 KB | 101 MiB/s | 965 µs |
-| **Full Pipeline** | Decompress + Unpack 100 KB | 175 MiB/s | 576 µs |
-
-*Benchmarks run on intel i5-11400H wsl ubuntu. LZW compression algorithm.*
-
-### Performance Characteristics
-
-- **Linear scaling**: 2x data = 2x time (stable ~100 MiB/s)
-- **Decompression faster**: 1.7x faster than compression
-- **Low overhead**: Small files (<1KB) see ~20% overhead
-- **Predictable**: 1MB ≈ 10ms, 100MB ≈ 1
