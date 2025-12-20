@@ -45,7 +45,7 @@ pub fn home() -> Html {
             let is_compress = *is_compress;
             
             let is_processing = is_processing.clone();
-            let selected_files_handle = selected_files.clone(); // Фікс помилки FnOnce
+            let selected_files_handle = selected_files.clone();
 
             is_processing.set(true);
 
