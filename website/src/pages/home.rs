@@ -14,6 +14,11 @@ pub fn home() -> Html {
     let selected_files = use_state(|| Vec::<File>::new());
     let is_processing = use_state(|| false);
 
+    let on_mode_change = {
+        let is_compress = is_compress.clone();
+        Callback::from(move |val| is_compress.set(val))
+    };
+
     let on_file_change = {
         let selected_files = selected_files.clone();
         Callback::from(move |e: Event| {
@@ -87,10 +92,11 @@ pub fn home() -> Html {
 
                 <ModeToggle
                     is_compress={*is_compress}
-                    on_change={Callback::from(move |val| is_compress.set(val))}
+                    on_change={on_mode_change}
                 />
 
                 <FileDropZone
+                    is_multiple={*is_compress}
                     on_change={on_file_change}
                     files_count={selected_files.len()}
                 />

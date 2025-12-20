@@ -21,14 +21,14 @@ pub fn mode_toggle(props: &ModeToggleProps) -> Html {
         <div class="flex justify-center space-x-8 mb-12">
             <button
                 onclick={on_encode}
-                class={classes!("text-xl", "font-bold", "pb-2", "transition-all", "tracking-widest",
-                    if props.is_compress { "text-white border-b-2 border-white" } else { "text-silver hover:text-white" })}>
+                class={classes!("text-xl", "font-bold", "pb-2", "border-b-2", "transition-all", "tracking-widest",
+                    if props.is_compress { "text-white  border-white" } else { "text-silver border-transparent hover:text-white" })}>
                 {"ENCODE"}
             </button>
             <button
                 onclick={on_decode}
-                class={classes!("text-xl", "font-bold", "pb-2", "transition-all", "tracking-widest",
-                    if !props.is_compress { "text-white border-b-2 border-white" } else { "text-silver hover:text-white" })}>
+                class={classes!("text-xl", "font-bold", "pb-2", "border-b-2", "transition-all", "tracking-widest",
+                    if !props.is_compress { "text-white  border-white" } else { "text-silver border-transparent hover:text-white" })}>
                 {"DECODE"}
             </button>
         </div>

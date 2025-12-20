@@ -4,6 +4,7 @@ use yew::prelude::*;
 pub struct FileDropZoneProps {
     pub on_change: Callback<Event>,
     pub files_count: usize,
+    pub is_multiple: bool,
 }
 
 #[function_component(FileDropZone)]
@@ -11,7 +12,7 @@ pub fn file_drop_zone(props: &FileDropZoneProps) -> Html {
     html! {
         <div class="border-2 border-dashed border-silver/30 rounded-xl py-16 flex flex-col items-center group hover:bg-zinc-800/50 transition-all cursor-pointer relative">
             <input type="file"
-                multiple=true
+                multiple={props.is_multiple}
                 onchange={props.on_change.clone()}
                 class="absolute inset-0 opacity-0 cursor-pointer" />
 
@@ -26,7 +27,7 @@ pub fn file_drop_zone(props: &FileDropZoneProps) -> Html {
             <p class="text-silver group-hover:text-alabaster font-medium tracking-wide">
                 {
                     if props.files_count == 0 {
-                        "Choose file(s) process".to_string()
+                        format!("Choose {} process", if props.is_multiple { "file(s)" } else { "a file" })
                     } else {
                         format!("{} items selected", props.files_count)
                     }

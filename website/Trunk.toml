@@ -1,2 +1,5 @@
 [build]
-public_dir = "public"
+target = "index.html"
+
+[watch]
+watch = ["src"]
