@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use crate::packager::FileEntry;
 
-use super::header::{ENTRY_SIZE, EntryType, Header};
+use super::header::{EntryType, Header, ENTRY_SIZE};
 
 pub fn pack_from_file_entries(entries: Vec<FileEntry>) -> Vec<u8> {
     let mut stream = Vec::new();

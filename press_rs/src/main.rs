@@ -1,6 +1,6 @@
 mod utils;
 
-use press_rs::compressor::{EXTENSION, compress_from_path, decompress_from_path_to_path};
+use press_rs::compressor::{compress_from_path, decompress_from_path_to_path, EXTENSION};
 use std::{
     io::{self, Write},
     path::Path,

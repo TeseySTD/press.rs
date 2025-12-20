@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use crate::packager::FileEntry;
 
-use super::header::{ENTRY_SIZE, EntryType, Header};
+use super::header::{EntryType, Header, ENTRY_SIZE};
 
 pub fn unpack_to_file_entries(archive: Vec<u8>) -> Vec<FileEntry> {
     let mut entries = Vec::new();

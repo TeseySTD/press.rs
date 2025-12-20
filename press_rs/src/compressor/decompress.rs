@@ -205,7 +205,7 @@ mod tests {
     mod lzw_logic {
         use super::*;
         use crate::compressor::compress::lzw_compress;
-        use rand::{Rng, rng};
+        use rand::{rng, Rng};
         use tempfile::tempdir;
 
         // Helper for round-trip tests (file-based)
