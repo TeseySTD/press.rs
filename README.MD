@@ -1,10 +1,11 @@
 <div align="center">
-    <img src="./press_rs_logo.svg" alt="press.rs logo" width="175px">
+    <img src="https://raw.githubusercontent.com/TeseySTD/press.rs/refs/heads/main/press_rs_logo.svg" alt="press.rs logo" width="175px">
     
 
 **A lightweight, pure-Rust file compression and archiving utility.**
 
 [![Rust](https://img.shields.io/badge/Rust-orange?logo=rust&style=flat-square)](https://www.rust-lang.org/)
+[![Crate Info](https://img.shields.io/crates/v/press_rs.svg)](https://crates.io/crates/press_rs)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](./LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/TeseySTD/press.rs/ci.yml?style=flat-square&label=Build)](https://github.com/TeseySTD/press.rs/actions)
 [![Last Commit](https://img.shields.io/github/last-commit/TeseySTD/press.rs?style=flat-square&label=Last%20Commit)](https://github.com/TeseySTD/press.rs/commits/main)
