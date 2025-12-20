@@ -1,5 +1,5 @@
 pub const NAME_SIZE: usize = 156;
-pub const SIZE: usize = 12;
+pub const SIZE: usize = 8;
 pub const TYPEFLAG_SIZE: usize = 1;
 
 pub const ENTRY_SIZE: usize = NAME_SIZE + SIZE + TYPEFLAG_SIZE;
@@ -55,10 +55,8 @@ impl Header {
     }
 
     pub fn get_size(&self) -> usize {
-        let tmp = String::from_utf8_lossy(&self.size);
-        let size_str = tmp.trim_end_matches('\0').trim();
-
-        usize::from_str_radix(size_str, 8).expect("Invalid octal in size field")
+        let bytes: [u8; 8] = self.size.try_into().expect("Slice with incorrect length");
+        u64::from_le_bytes(bytes) as usize
     }
 
     pub fn set_name(&mut self, name: String) {
@@ -69,9 +67,8 @@ impl Header {
     }
 
     pub fn set_size(&mut self, size: usize) {
-        let s = format!("{:0>11o}\0", size);
-        let bytes = s.as_bytes();
-        self.size[..bytes.len()].copy_from_slice(bytes);
+        let bytes = (size as u64).to_le_bytes();
+        self.size.copy_from_slice(&bytes);
     }
 
     pub fn set_typeflag(&mut self, typeflag: EntryType) {
