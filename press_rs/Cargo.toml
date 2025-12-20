@@ -1,7 +1,7 @@
 [package]
 name = "press_rs"
 description = "Tiny file compressor and packager on Rust."
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 homepage = "https://teseystd.github.io/press.rs/"
