@@ -8,14 +8,76 @@ mod header;
 mod pack;
 mod unpack;
 
+/// Represents a single entry (file or directory) within the archive.
+///
+/// This struct is primarily used when working with in-memory archives via [`pack_entries`]
+/// or when inspecting archive contents via [`unpack_to_entries`].
+///
+/// # Examples
+///
+/// Creating a file entry manually:
+/// ```
+/// use press_rs::packager::FileEntry;
+///
+/// let file = FileEntry {
+///     name: "documents/notes.txt".to_string(),
+///     data: b"Remember to buy milk".to_vec(),
+///     is_dir: false,
+/// };
+/// ```
+///
+/// Creating a directory entry:
+/// ```
+/// use press_rs::packager::FileEntry;
+///
+/// let dir = FileEntry {
+///     name: "documents/".to_string(),
+///     data: Vec::new(), // Directories have no content
+///     is_dir: true,
+/// };
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileEntry {
+    /// The relative path of the file or directory within the archive.
+    ///
+    /// # Best Practices
+    /// * Use forward slashes (`/`) as separators for better cross-platform compatibility.
+    /// * Avoid absolute paths (e.g., `C:\Windows` or `/usr/bin`).
     pub name: String,
+
+    /// The raw binary content of the file.
+    ///
+    /// If [`is_dir`](Self::is_dir) is `true`, this vector should generally be empty.
     pub data: Vec<u8>,
+
+    /// Indicates whether this entry represents a directory.
+    ///
+    /// * If `true`, the entry is treated as a folder structure.
+    /// * If `false`, the entry is treated as a regular file containing [`data`](Self::data).
     pub is_dir: bool,
 }
 
 /// Packs a file or directory into a binary archive
+/// 
+/// # Arguments
+///
+/// * `path` - The path to the file or directory to pack.
+/// 
+/// # Returns
+///
+/// Returns a `Vec<u8>` containing the packed archive data.
+///
+/// # Examples
+///
+/// ```no_run
+/// use press_rs::packager::pack;
+///
+/// // Pack a directory
+/// let archive_bytes = pack("./src");
+///
+/// // Or pack a single file
+/// let file_archive = pack("Cargo.toml");
+/// ```
 pub fn pack(path: impl AsRef<Path>) -> Vec<u8> {
     let mut archive = Vec::<u8>::new();
     if path.as_ref().is_dir() {
@@ -31,18 +93,83 @@ pub fn pack(path: impl AsRef<Path>) -> Vec<u8> {
 }
 
 /// Packs a list of file entries into a binary archive. Useful for non-filesystem use.
+/// 
+/// # Arguments
+///
+/// * `entries` - A vector of [`FileEntry`]s to pack.
+/// 
+/// # Returns
+///
+/// Returns a `Vec<u8>` containing the packed archive data.
+///
+/// # Examples
+///
+/// ```
+/// use press_rs::packager::{pack_entries, FileEntry};
+///
+/// let entries = vec![
+///     FileEntry {
+///         name: "hello.txt".to_string(),
+///         data: b"Hello World".to_vec(),
+///         is_dir: false
+///     }
+/// ];
+///
+/// let archive = pack_entries(entries);
+/// # assert!(!archive.is_empty());
+/// ```
 pub fn pack_entries(entries: Vec<FileEntry>) -> Vec<u8> {
     pack_from_file_entries(entries)
 }
 
 /// Unpacks the archive and creates directories/files on the specified path.
+/// 
+/// # Arguments
+///
+/// * `archive` - The binary archive data to unpack.
+/// * `path` - The path to unpack the archive content to.
+///
+/// # Examples
+///
+/// ```no_run
+/// use press_rs::packager::unpack;
+/// use std::fs;
+///
+/// let archive_bytes = fs::read("backup.press").unwrap();
+///
+/// // Unpack archive content into the "output" directory
+/// unpack(archive_bytes, "./output");
+/// ```
 pub fn unpack(archive: Vec<u8>, path: impl AsRef<Path>) {
     if !path.as_ref().exists() {
         fs::create_dir_all(path.as_ref()).expect("Cannot create directory");
     }
     unpack::unpack_with_dir_creation(archive, path);
 }
+
 /// Returns a list of unpacked entries. Does not create directories.
+/// 
+/// # Arguments
+///
+/// * `archive` - The binary archive data to unpack.
+/// 
+/// # Returns
+///
+/// Returns a `Vec<FileEntry>` containing the unpacked entries.
+///
+/// # Examples
+///
+/// ```no_run
+/// use press_rs::packager::unpack_to_entries;
+/// use std::fs;
+///
+/// let archive_bytes = fs::read("data.press").unwrap();
+/// let entries = unpack_to_entries(archive_bytes);
+///
+/// for entry in entries {
+///     println!("Found file: {}", entry.name);
+/// }
+/// ```
 pub fn unpack_to_entries(archive: Vec<u8>) -> Vec<FileEntry> {
     unpack_to_file_entries(archive)
 }
